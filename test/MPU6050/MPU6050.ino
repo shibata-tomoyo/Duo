@@ -65,7 +65,7 @@ void setup() {
   Serial.print(c, HEX);
   Serial.print(", error = ");
   Serial.println(error, DEC);
-
+  
   // MPU6050動作開始
   MPU6050_write_reg(MPU6050_PWR_MGMT_1, 0);
 }
