@@ -45,7 +45,7 @@ void setup() {
   int error;
   uint8_t c;
 
-  Wire.begin();
+  Wire.begin(21);
 
   // ボーレートを115200bpsにセット
   Serial.begin(115200);
@@ -91,11 +91,6 @@ void loop() {
   SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
   SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
   SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);
-
-  // 温度の計算。式はレジスタマップに載ってます。この式おかしいかも…。
-  dT = ( (float) accel_t_gyro.value.temperature + 12412.0) / 340.0;
-  Serial.print(dT, 1);
-  Serial.print("\t");
 
   // 取得した加速度値を分解能で割って加速度(G)に変換する
   float acc_x = accel_t_gyro.value.x_accel / 16384.0; //FS_SEL_0 16,384 LSB / g
