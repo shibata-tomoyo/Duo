@@ -45,7 +45,7 @@ void setup() {
   int error;
   uint8_t c;
 
-  Wire.begin(21);
+  Wire.begin(21, 22);
 
   // ボーレートを115200bpsにセット
   Serial.begin(115200);
