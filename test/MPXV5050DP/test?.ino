@@ -1,7 +1,7 @@
 // If max v of 4.5v = 50kPa, then sensorValue of 921 (920.7) = 50kPa
 
 int sensorPin=A0;
-int sensorValue=0,sensorMax=1023,sensorOffset=52;
+int sensorValue=0,sensorMax=4095,sensorOffset=52;
 float voltage=0,kpa=0,voltageMax=5.0,kpaRangeTopVoltage=4.5;
 
 void setup() {
