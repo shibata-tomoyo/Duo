@@ -1,5 +1,12 @@
 # ESP32の使用で得た知見
-ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方が分からないことも多いと思うので，使用していく中で得られた知見をここにまとめていきましょう．
+ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方が分からないことも多いと思うので，使用していく中で得られた知見をここにまとめていきましょう．<br>
+
+・[準備](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E6%BA%96%E5%82%99)<br>
+・[プログラムの書き込み](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%81%BF)<br>
+・[シリアル通信](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E3%82%B7%E3%83%AA%E3%82%A2%E3%83%AB%E9%80%9A%E4%BF%A1)<br>
+・[I2C通信](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E3%82%B7%E3%83%AA%E3%82%A2%E3%83%AB%E9%80%9A%E4%BF%A1)<br>
+・[アナログ入力](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E3%82%A2%E3%83%8A%E3%83%AD%E3%82%B0%E5%85%A5%E5%8A%9B%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)<br>
+
 ## 準備
 1. PCと接続
 	- ESP32の接続ポートはUSBのmicro typeB
@@ -61,7 +68,7 @@ ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方
 ### Wire.hの扱いについて
 - ArduinoだとWire.begin()の引数には何も入れなかったが，ESP32では第一引数にSDAピン番号，第二引数にSCLピン番号を入れる
 
-## アナログ入力について
+## アナログ入力
 - A1，A2，A8，A9を除いたA0-A19の計1個のピンがアナログ入力として使用可能
 - A〇っていう番号はアナログ入力ピン番号であり，I/Oピン番号とは異なることに注意
 	- マイコンボード左側のピン(USBポートを手前にしたとき)
