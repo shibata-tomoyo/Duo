@@ -7,6 +7,8 @@ ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方
 ・[I2C通信](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E3%82%B7%E3%83%AA%E3%82%A2%E3%83%AB%E9%80%9A%E4%BF%A1)<br>
 ・[アナログ入力](https://github.com/CORE-since2020/Duo/blob/main/ESP32%E3%81%A7%E5%BE%97%E3%81%9F%E7%9F%A5%E8%A6%8B.md#%E3%82%A2%E3%83%8A%E3%83%AD%E3%82%B0%E5%85%A5%E5%8A%9B%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)<br>
 
+## ESP32のピン配置
+![ESP32ピン配置](https://github.com/CORE-since2020/Duo/blob/main/image/esp32_devkitc_pinout_01.png?raw=true)
 ## 準備
 1. PCと接続
 	- ESP32の接続ポートはUSBのmicro typeB
