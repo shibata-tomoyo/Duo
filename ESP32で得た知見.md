@@ -102,8 +102,73 @@ ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方
 	- ピン番号は順番に並んでいるわけではないことに注意
 	- AnalogRead()の引数にはアナログ入力番号，I/Oピン番号のどちらを入れてもいい
 - ESP32においてAnalogRead()のレンジは0-4095であることに注意(Arduinoでは0-1023)
+	
 	- 精度はESP32のほうがいい
 - I/Oピンの基準電圧は3.3V
+	
 	- 5V出力のアナログ出力のセンサを用いる場合はセンサとマイコンボードの間にレベル変換ICを挟む必要がある
 - A11(I/O0)のピンを使うとき，ピンに接続したままプログラムを書き込もうとするとエラーがでる
+	
 	- たぶんSerialの時と同じ現象
+## タイマー割込み
+- **ESP32はまさかの"MsTimer2"ライブラリが使えない！！**
+- ライブラリは特になく何もインクルードしなくても以下の方法でタイマーを実装できる
+	1. グローバル変数を準備
+		- 以下のコードをメイン関数の上に書く
+		`volatile int timeCounter1;
+hw_timer_t *timer1 = NULL; 
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;`
+	2. 使用タイマーの指定と初期化
+		- ESP32では4つのタイマーを使用することができる．タイマーの使用に先立って，まずtimerBegin関数で使用するタイマーの番号などを指定して初期化処理を行う．この関数はesp-hal-timer.h内で次のようにプロトタイプ宣言されている．
+		`hw_timer_t * timerBegin(uint8_t timer, uint16_t divider, bool countUp);`
+			- 第一引数：使用するタイマー番号(0~3)
+			- 第二引数：プリスケーラー（1マイクロ秒ごとにインクリメントさせたいなら80を指定）
+			- 第三引数：割込カウンターのインクリメント（カウントアップ）指定
+		- ちなみにプリスケーラーとは周波数をカウントするもので，この関数では1usごとにインクリメント(プラス1する)なら80という数字を入れるらしい
+		- 例えばこんな感じ
+		`timer = timerBegin(0, 80, true);`
+		
+	3. 割込み処理関数(ISR)の指定
+		- ISR関数を結びつける
+		- 以下のように関数が定義されている
+		`void timerAttachInterrupt (hw_timer_t * timer, void (* fn)(void), bool edge);`
+			- 第一引数：初期化されたタイマー設定用のポインター
+			- 第二引数：ISR関数のアドレス
+			- 第三引数：エッジ割込指定
+		- onTimer()という名前の割込処理関数を記述するのであれば，次のようなコードになる．第1引数には，グローバル変数で定義したタイマー設定用ポインターを指定する．
+		`timerAttachInterrupt(timer, &onTimer, true);`
+	4. タイマーの動作間隔の指定
+		- タイマーの動作間隔を指定する
+		- 以下のように関数が定義されている
+		`void timerAlarmWrite (hw_timer_t * timer, uint64_t alarm_value, bool autoreload);`
+			- 第一引数：初期化されたタイマー設定用のポインター
+			- 第二引数：割込みが発生する間隔(単位は**マイクロ秒**)
+			- 第三引数：カウンターのリロード指定（定期的に割り込みを生成させる）
+		- 1秒間隔で割込みを行う場合は以下のようになる
+		`timerAlarmWrite(timer, 1000000, true);`
+	5. タイマーの有効化
+		- timerというポインタを引数に入れて
+		`timerAlarmEnable(timer);`
+	6. ISR関数を構成
+		- とりあえず以下のような関数を定義する
+		`void IRAM_ATTR onTimer() {
+　　　　　　portENTER_CRITICAL_ISR(&timeMux);
+　　　　　　interruptCounter++;
+　　　　　　portEXIT_CRITICAL_ISR(&timeMux);
+　　　　}`
+		- interruptCounterという変数がインクリメントすることでloop関数に割込み処理があることを通知する．
+	7. loop関数における割込み検知処理
+		- ISR関数で割込み通知が来るため，カウンターをクリアして必要な割込み処理を行う
+		- 以下のようにコードを書く
+		`void loop {
+if (interruptCounter > 0) {
+　　portENTER_CRITICAL(&timeMux);
+　　interruptCounter--;
+　　portEXIT_CRITICAL(&timeMux);
+　　// Interrupt handling code
+　　　　　　　　：
+　　　　　　　　：
+　　}
+}`
+- 以上がESP32で割込みを行う手順
+- 面倒…
