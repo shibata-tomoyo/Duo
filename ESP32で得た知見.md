@@ -116,60 +116,79 @@ ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方
 - ライブラリは特になく何もインクルードしなくても以下の方法でタイマーを実装できる
 	1. グローバル変数を準備
 		- 以下のコードをメイン関数の上に書く
-		`volatile int timeCounter1;
-hw_timer_t *timer1 = NULL; 
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;`
+		```c++
+		volatile int timeCounter1;
+		hw_timer_t *timer1 = NULL; 
+		portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+		```
+		
 	2. 使用タイマーの指定と初期化
 		- ESP32では4つのタイマーを使用することができる．タイマーの使用に先立って，まずtimerBegin関数で使用するタイマーの番号などを指定して初期化処理を行う．この関数はesp-hal-timer.h内で次のようにプロトタイプ宣言されている．
-		`hw_timer_t * timerBegin(uint8_t timer, uint16_t divider, bool countUp);`
+		```c++
+		hw_timer_t * timerBegin(uint8_t timer, uint16_t divider, bool countUp);
+		```
 			- 第一引数：使用するタイマー番号(0~3)
 			- 第二引数：プリスケーラー（1マイクロ秒ごとにインクリメントさせたいなら80を指定）
 			- 第三引数：割込カウンターのインクリメント（カウントアップ）指定
 		- ちなみにプリスケーラーとは周波数をカウントするもので，この関数では1usごとにインクリメント(プラス1する)なら80という数字を入れるらしい
 		- 例えばこんな感じ
-		`timer = timerBegin(0, 80, true);`
+		```c++
+		timer = timerBegin(0, 80, true);
+		```
 		
 	3. 割込み処理関数(ISR)の指定
 		- ISR関数を結びつける
 		- 以下のように関数が定義されている
-		`void timerAttachInterrupt (hw_timer_t * timer, void (* fn)(void), bool edge);`
+		```c++
+		void timerAttachInterrupt (hw_timer_t * timer, void (* fn)(void), bool edge);
+		```
 			- 第一引数：初期化されたタイマー設定用のポインター
 			- 第二引数：ISR関数のアドレス
 			- 第三引数：エッジ割込指定
 		- onTimer()という名前の割込処理関数を記述するのであれば，次のようなコードになる．第1引数には，グローバル変数で定義したタイマー設定用ポインターを指定する．
-		`timerAttachInterrupt(timer, &onTimer, true);`
+		```c++
+		timerAttachInterrupt(timer, &onTimer, true);
+		```
 	4. タイマーの動作間隔の指定
 		- タイマーの動作間隔を指定する
 		- 以下のように関数が定義されている
-		`void timerAlarmWrite (hw_timer_t * timer, uint64_t alarm_value, bool autoreload);`
+		```c++
+		void timerAlarmWrite (hw_timer_t * timer, uint64_t alarm_value, bool autoreload);
+		```
 			- 第一引数：初期化されたタイマー設定用のポインター
 			- 第二引数：割込みが発生する間隔(単位は**マイクロ秒**)
 			- 第三引数：カウンターのリロード指定（定期的に割り込みを生成させる）
 		- 1秒間隔で割込みを行う場合は以下のようになる
-		`timerAlarmWrite(timer, 1000000, true);`
+		```c++
+		timerAlarmWrite(timer, 1000000, true);
+		```
 	5. タイマーの有効化
 		- timerというポインタを引数に入れて
-		`timerAlarmEnable(timer);`
+		```c++
+		timerAlarmEnable(timer);
+		```
 	6. ISR関数を構成
 		- とりあえず以下のような関数を定義する
-		`void IRAM_ATTR onTimer() {
-　　　　　　portENTER_CRITICAL_ISR(&timeMux);
-　　　　　　interruptCounter++;
-　　　　　　portEXIT_CRITICAL_ISR(&timeMux);
-　　　　}`
+		```c++
+		void IRAM_ATTR onTimer1(){
+  			portENTER_CRITICAL_ISR(&timerMux);
+  			timeCounter1++;
+  			portEXIT_CRITICAL_ISR(&timerMux);
+		}
+		```
 		- interruptCounterという変数がインクリメントすることでloop関数に割込み処理があることを通知する．
 	7. loop関数における割込み検知処理
 		- ISR関数で割込み通知が来るため，カウンターをクリアして必要な割込み処理を行う
 		- 以下のようにコードを書く
-		`void loop {
-if (interruptCounter > 0) {
-　　portENTER_CRITICAL(&timeMux);
-　　interruptCounter--;
-　　portEXIT_CRITICAL(&timeMux);
-　　// Interrupt handling code
-　　　　　　　　：
-　　　　　　　　：
-　　}
-}`
+		```c++
+		void loop() {
+  			if (timeCounter1 > 0) {
+    			portENTER_CRITICAL(&timerMux);
+    			timeCounter1--;
+    			portEXIT_CRITICAL(&timerMux);
+				/*以下，割込み処理の内容*/
+			}
+		}
+		```
 - 以上がESP32で割込みを行う手順
 - 面倒…
