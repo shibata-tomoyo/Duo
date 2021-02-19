@@ -31,6 +31,21 @@ ESP32は(たぶん)COREで初めて使うマイコンボードです．使い方
 4. COMポートを設定する(PC-ESP32のシリアル通信の設定)
 	1．(Windows)デバイスマネージャーに出てくる"Silicon Labs CP210x USB to UART Bridge"に表示されているCOM番号を控える
 	2. "ツール"→"シリアルポート"を開き，先ほど控えたCOM番号を選択する
+
+### 注意：Macを使っている方やPythonの実行環境を仮想環境上で行っている方へ
+1. `/Users/xxxxx/Library/Arduino15/packages/esp32/hardware/esp32/1.x.x/platform.txt`を開き，7行目にあるtools.esptool_py.cmd=esptoolとなっている部分を tools.esptool_py.cmd=esptool.pyと書き換えて保存する
+2. `/Users/xxxxx/Library/Arduino15/packages/esp32/hardware/esp32/1.x.x/tools/esptool.py`を`/Users/xxxxx/Library/Arduino15/packages/esp32/tools/esptool_py/2.x.x/`にコピーする。
+3. コピーした`esptool.py`に実行権限を与える。（ターミナルなどで`chmod +x <ファイルのpath>`を実行すれば良い。）
+4. ここからはPythonをいじってる方に生じるエラーで「ImportError: No module named serial」となどと出るはず。仮想環境上でやるのであれば，仮想環境上で
+```
+pip3 install serial
+pip3 install pyserial
+```
+を実行する。
+5. インストールが完了したら`which python3`で出力されるpython3のpathをesptool.pyの1行目に書き換えてあげればよい。
+6. Arduino IDEを再起動
+
+
 ## プログラム書き込み
 1. まずArduino IDEの左上のレ点を押してコンパイルできるか確かめる(デバック)
 2. この時ファイルを保存していないと自動的に保存するように促されるので，任意のディレクトリに保存
