@@ -39,10 +39,10 @@ int32_t adc_P, adc_T, adc_H;
 
 void setup() {
   //シリアル通信初期化
-  Serial.begin(9600);//シリアル通信を9600bpsで初期化
+  Serial.begin(115200);//シリアル通信を9600bpsで初期化
 
   //I2C初期化
-  Wire.begin();//I2Cを初期化
+  Wire.begin(21,22);//I2Cを初期化
 
   //BME280動作設定
   Wire.beginTransmission(BME280_ADDR);//I2Cスレーブ「Arduino Uno」のデータ送信開始
