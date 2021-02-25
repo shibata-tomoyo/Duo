@@ -5,7 +5,7 @@ int sensorValue=0,sensorMax=4095,sensorOffset=72;
 float voltage=0,kpa=0,voltageMax=5.0,kpaRangeTopVoltage=4.5;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
