@@ -12,7 +12,7 @@
 // 構造体定義
 typedef union accel_t_gyro_union {
   struct {
-    uint8_t x_accel_h;
+    uint8_t x_accel_h; //8bitの非負整数を格納する型名
     uint8_t x_accel_l;
     uint8_t y_accel_h;
     uint8_t y_accel_l;
@@ -49,8 +49,6 @@ void setup() {
 
   // ボーレートを115200bpsにセット
   Serial.begin(115200);
-  Serial.print("InvenSense MPU-6050");
-  Serial.print("June 2012");
 
   // 初回の読み出し
   error = MPU6050_read(MPU6050_WHO_AM_I, &c, 1);
