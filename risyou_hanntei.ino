@@ -121,9 +121,10 @@ void loop() {
   Serial.print("");
   
   //移動平均をとる
-  if(ai >= 4){
   float asqrt[ai+1];
   asqrt[ai] = sqrt(pow(accel.value.x_accel, 2)+pow(accel.value.y_accel, 2)+pow(accel.value.z_accel, 2)) / 16384.0; //３軸合成加速度
+    
+  if(ai >= 4){
   float aave = (asqrt[ai]+asqrt[ai-1]+asqrt[ai-2]+asqrt[ai-3]+asqrt[ai-4]) / 5;
 
   //連続回数を調べる
