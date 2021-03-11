@@ -12,7 +12,7 @@
 boolean BURNING = false; //離床判定によってフェーズがBURNINGに移行．フラグにしてます...
 
 // 構造体定義
-typedef union accel_t_gyro_union {
+typedef union accel_union {
   struct {
     uint8_t x_accel_h;
     uint8_t x_accel_l;
@@ -20,21 +20,12 @@ typedef union accel_t_gyro_union {
     uint8_t y_accel_l;
     uint8_t z_accel_h;
     uint8_t z_accel_l;
-    uint8_t x_gyro_h;
-    uint8_t x_gyro_l;
-    uint8_t y_gyro_h;
-    uint8_t y_gyro_l;
-    uint8_t z_gyro_h;
-    uint8_t z_gyro_l;
   }
   reg;
   struct {
     int16_t x_accel;
     int16_t y_accel;
     int16_t z_accel;
-    int16_t x_gyro;
-    int16_t y_gyro;
-    int16_t z_gyro;
   }
   value;
 };
@@ -105,56 +96,35 @@ void setup() {
 
 void loop() {
   //離床判定
-  int an = -1; //移動平均カウントのための変数
+  int ai = 0; //移動平均カウントのための変数
   int acnt = 0; //連続回数カウントのための変数
+  
   while(BURNING = false){
   int error;
-  accel_t_gyro_union accel_t_gyro;
-  error = MPU6050_read(MPU6050_ACCEL_XOUT_H, (uint8_t *)&accel_t_gyro, sizeof(accel_t_gyro));
+  accel_union accel;
+  error = MPU6050_read(MPU6050_ACCEL_XOUT_H, (uint8_t *)&accel, sizeof(accel));
   uint8_t swap;
 #define SWAP(x,y) swap = x; x = y; y = swap
-  SWAP (accel_t_gyro.reg.x_accel_h, accel_t_gyro.reg.x_accel_l);
-  SWAP (accel_t_gyro.reg.y_accel_h, accel_t_gyro.reg.y_accel_l);
-  SWAP (accel_t_gyro.reg.z_accel_h, accel_t_gyro.reg.z_accel_l);
-  SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
-  SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
-  SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);
-
-  float ax = accel_t_gyro.value.x_accel / 16384.0; //FS_SEL_0 16,384 LSB / g
-  float ay = accel_t_gyro.value.y_accel / 16384.0;
-  float az = accel_t_gyro.value.z_accel / 16384.0;
+  SWAP (accel.reg.x_accel_h, accel.reg.x_accel_l);
+  SWAP (accel.reg.y_accel_h, accel.reg.y_accel_l);
+  SWAP (accel.reg.z_accel_h, accel.reg.z_accel_l);
+  
+  float ax = accel.value.x_accel / 16384.0; //FS_SEL_0 16,384 LSB / g
+  float ay = accel.value.y_accel / 16384.0;
+  float az = accel.value.z_accel / 16384.0;
   Serial.print(ax, 2);
   Serial.print("\t");
   Serial.print(ay, 2);
   Serial.print("\t");
   Serial.print(az, 2);
   Serial.print("\t");
-  
-  float gx = accel_t_gyro.value.x_gyro / 131.0;//FS_SEL_0 131 LSB / (°/s)
-  float gy = accel_t_gyro.value.y_gyro / 131.0;
-  float gz = accel_t_gyro.value.z_gyro / 131.0;
-  Serial.print(gx, 2);
-  Serial.print("\t");
-  Serial.print(gy, 2);
-  Serial.print("\t");
-  Serial.print(gz, 2);
-  Serial.println("");
+  Serial.print("");
   
   //移動平均をとる
-  an++;
-  int ai;
-  if(an >= 4){
-  float asum;
-  float asqrt_all[an+1];
-  float asqrt_five[5];
-  asqrt_all[an] = sqrt(pow(accel_t_gyro.value.x_accel, 2)+pow(accel_t_gyro.value.y_accel, 2)+pow(accel_t_gyro.value.z_accel, 2)) / 16384.0; //３軸合成加速度
-  for(ai = 0; ai < 5; ai++){
-    asqrt_five[ai] = asqrt_all[an-ai];
-  }
-  for(ai = 0; ai < 5; ai++){
-    asum += asqrt_five[ai];
-  }
-  float aave = asum / 5;
+  if(ai >= 4){
+  float asqrt[ai+1];
+  asqrt[ai] = sqrt(pow(accel.value.x_accel, 2)+pow(accel.value.y_accel, 2)+pow(accel.value.z_accel, 2)) / 16384.0; //３軸合成加速度
+  float aave = (asqrt[ai]+asqrt[ai-1]+asqrt[ai-2]+asqrt[ai-3]+asqrt[ai-4]) / 5;
 
   //連続回数を調べる
   if(aave > A_FLIGHT){
@@ -167,5 +137,6 @@ void loop() {
     Serial.print("PHASE:BURNING");
   }
   }
+  ai++;
   }
 }
