@@ -10,7 +10,7 @@
 
 #define A_FLIGHT 2.50 //しきい値
 boolean BURNING = false; //離床判定によってフェーズがBURNINGに移行．フラグにしてます...
-int SAMPLING_RATE = 400000; //MPU6050のサンプリングレートは400kHz
+const SAMPLING_RATE = 200000; //MPU6050のサンプリングレートは200kHz
 
 // 構造体定義
 typedef union accel_union {
@@ -107,6 +107,7 @@ void setup() {
   Wire.write(0x1C);
   Wire.write(0x10);
   Wire.endTransmission();
+  const range = 4096; //定数
 
   error = MPU6050_read(MPU6050_WHO_AM_I, &c, 1);
   error = MPU6050_read(MPU6050_PWR_MGMT_1, &c, 1);
@@ -139,9 +140,9 @@ void loop() {
   SWAP (accel.reg.y_accel_h, accel.reg.y_accel_l);
   SWAP (accel.reg.z_accel_h, accel.reg.z_accel_l);
   
-  float ax = accel.value.x_accel / 4096.0; //FS_SEL_2 4,096 LSB / g
-  float ay = accel.value.y_accel / 4096.0;
-  float az = accel.value.z_accel / 4096.0;
+  float ax = accel.value.x_accel / range; //FS_SEL_2 4,096 LSB / g
+  float ay = accel.value.y_accel / range;
+  float az = accel.value.z_accel / range;
   Serial.print(ax, 2);
   Serial.print("\t");
   Serial.print(ay, 2);
@@ -155,7 +156,7 @@ void loop() {
       for(ai = 0; ai < 5; ai++){
     asqrt[ai+1] = asqrt[ai];
   }
-  asqrt[0] = sqrt(pow(accel.value.x_accel, 2)+pow(accel.value.y_accel, 2)+pow(accel.value.z_accel, 2)) / 4096.0; //３軸合成加速度
+  asqrt[0] = sqrt(pow(accel.value.x_accel, 2)+pow(accel.value.y_accel, 2)+pow(accel.value.z_accel, 2)) / range; //３軸合成加速度
   float aave = (asqrt[0]+asqrt[1]+asqrt[2]+asqrt[3]+asqrt[4]) / 5;
 
   //連続回数を調べる
