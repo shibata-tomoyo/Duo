@@ -10,7 +10,7 @@
 
 #define A_FLIGHT 2.50 //しきい値
 boolean BURNING = false; //離床判定によってフェーズがBURNINGに移行．フラグにしてます...
-const SAMPLING_RATE = 200000; //MPU6050のサンプリングレートは200kHz
+const SAMPLING_RATE = 200; //MPU6050のサンプリングレートは200Hz
 
 // 構造体定義
 typedef union accel_union {
